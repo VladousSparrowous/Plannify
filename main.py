@@ -1,8 +1,10 @@
 from config import Config
-from ui.telegram_bot import TelegramBot
+from ui.bot import TelegramBot
 
 def main():
-    Config.validate()
+    if not Config.TELEGRAM_TOKEN:
+        print("❌ TELEGRAM_TOKEN not set in .env")
+        return
     
     bot = TelegramBot(Config.TELEGRAM_TOKEN)
     bot.run()

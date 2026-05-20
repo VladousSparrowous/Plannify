@@ -1,4 +1,4 @@
-from connectors.telegram_reader import TelegramReaderConnector
+from connectors.telegram_history import TelegramConnector
 from typing import List, Dict
 import logging
 
@@ -9,7 +9,7 @@ class SearchTool:
     Инструмент для поиска по истории чатов
     """
     
-    def __init__(self, telegram_reader: TelegramReaderConnector):
+    def __init__(self, telegram_reader: TelegramConnector):
         self.telegram = telegram_reader
     
     async def search_in_chats(
@@ -47,9 +47,9 @@ class SearchTool:
     def format_search_response(self, results: List[Dict], query: str) -> str:
         """Форматирует результаты поиска для отправки в Telegram"""
         if not results:
-            return f"🔍 Ничего не найдено по запросу: {query}"
+            return f"Ничего не найдено по запросу: {query}"
         
-        response = f"🔍 **Результаты поиска:** «{query}»\n\n"
+        response = f"**Результаты поиска:** «{query}»\n\n"
         
         for i, result in enumerate(results[:10], 1):
             # Обрезаем длинные сообщения
@@ -59,7 +59,30 @@ class SearchTool:
             response += (
                 f"{i}. **{chat_title}**\n"
                 f"   {text}\n"
-                f"   🔗 [Открыть в Telegram]({result['link']})\n\n"
+                f"   [Открыть в Telegram]({result['link']})\n\n"
             )
         
         return response
+    
+
+# Класс SearchTool:
+#
+# Инициализация:
+# - Принимает экземпляр TelegramConnector (для работы с историей чатов)
+# - Сохраняет его для дальнейшего использования
+#
+# Ключевые методы:
+#
+# 1. search_in_chats(query, chat_ids, since_days):
+#    - Выполняет поиск по всем указанным чатам
+#    - query: поисковый запрос (текст для поиска)
+#    - chat_ids: список ID чатов (например, ['@channel_name', '-1001234567890'])
+#    - since_days: глубина поиска в днях (по умолчанию 7 дней)
+#    - Возвращает список найденных сообщений, отсортированных по времени (новые сверху)
+#
+# 2. format_search_response(results, query):
+#    - Форматирует результаты поиска для отправки в Telegram
+#    - Ограничивает вывод 10 результатами
+#    - Обрезает длинные сообщения до 100 символов
+#    - Добавляет ссылки на оригинальные сообщения в Telegram
+#    - Возвращает Markdown строку

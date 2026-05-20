@@ -15,4 +15,11 @@ wheels/
 
 *.sqlite3
 
-*.pickle
+*.pickledata/
+
+
+data/
+*.bin
+*.db
+token.pickle
+*.pickletoken.pickle

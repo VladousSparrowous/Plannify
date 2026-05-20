@@ -3,7 +3,7 @@ from config import Config
 from connectors.jira import JiraConnector
 
 def test_jira():
-    Config.validate()
+
     
     if not Config.JIRA_TOKEN:
         print("❌ Jira не настроена. Добавьте JIRA_TOKEN в .env")
@@ -17,11 +17,11 @@ def test_jira():
     )
     
     # Проверяем подключение
-    if connector.validate():
-        print("\n📋 Ваши активные задачи:")
-        tasks = connector.get_my_tasks()
-        for task in tasks:
-            print(f"  {task['source_id']}: {task['title'][:50]}...")
+
+    print("\n📋 Ваши активные задачи:")
+    tasks = connector.get_my_tasks(assignee=Config.JIRA_ASSIGNER)
+    for task in tasks:
+        print(f"  {task['source_id']}: {task['title'][:50]}...")
     
 if __name__ == "__main__":
     test_jira()

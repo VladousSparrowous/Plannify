@@ -42,7 +42,7 @@ class GoogleCalendarConnector:
             if creds and creds.expired and creds.refresh_token:
                 try:
                     creds.refresh(Request())
-                    logger.info("✅ Token refreshed")
+                    logger.info("Token refreshed")
                 except Exception as e:
                     logger.error(f"Failed to refresh token: {e}")
                     creds = None
@@ -53,7 +53,7 @@ class GoogleCalendarConnector:
                     self.credentials_path, self.SCOPES
                 )
                 creds = flow.run_local_server(port=0)
-                logger.info("✅ New credentials obtained")
+                logger.info("New credentials obtained")
             
             # Сохраняем токен
             with open(self.token_path, 'wb') as token:
@@ -61,7 +61,7 @@ class GoogleCalendarConnector:
         
         # Создаём сервис
         service = build('calendar', 'v3', credentials=creds)
-        logger.info("✅ Google Calendar service initialized")
+        logger.info(" Google Calendar service initialized")
         return service
     
     def get_events(self, date: datetime = None, days_ahead: int = 1) -> List[Dict]:
@@ -102,7 +102,7 @@ class GoogleCalendarConnector:
                 if formatted:
                     result.append(formatted)
             
-            logger.info(f"📅 Found {len(result)} events for {date.strftime('%Y-%m-%d')}")
+            logger.info(f"Found {len(result)} events for {date.strftime('%Y-%m-%d')}")
             return result
             
         except Exception as e:
@@ -168,13 +168,27 @@ class GoogleCalendarConnector:
         except Exception as e:
             logger.error(f"Failed to format event: {e}")
             return None
-    
-    def validate(self) -> bool:
-        """Проверить подключение к Google Calendar"""
-        try:
-            events = self.get_today_events()
-            logger.info("✅ Google Calendar validated")
-            return True
-        except Exception as e:
-            logger.error(f"❌ Google Calendar validation failed: {e}")
-            return False
+
+# класс GoogleCalendarConnector
+
+# Ключевые методы:
+
+# - get_events(date, days_ahead): получает события на указанную дату + N дней
+# - get_today_events(): сокращение для получения событий на сегодня
+# - get_tomorrow_events(): события на завтра
+# - get_week_events(): события на текущую неделю (7 дней)
+# - validate(): проверяет валидность подключения
+
+
+# Формат возвращаемых данных:
+# - Приводит события к унифицированному формату с полями:
+#   source, source_id, title, text, timestamp, link, metadata
+# - metadata содержит детальную информацию:
+#   start/end (ISO формат), start_human/end_human (ЧЧ:ММ), is_all_day (флаг целого дня),
+#   location (место проведения), attendees (список участников), status (статус события)
+
+
+# Примечание:
+# - Ссылка на событие формируется как https://calendar.google.com/calendar/event?eid={event_id}
+# - Целодневные события обрабатываются отдельно (без времени начала/конца)
+# - Пустые заголовки заменяются на 'Без названия'

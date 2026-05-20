@@ -6,14 +6,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class TelegramHistoryConnector:
+class TelegramConnector:
 
     def __init__(self, api_id: int, api_hash: str):
         self.client = TelegramClient("session", api_id, api_hash)
 
     async def connect(self):
         await self.client.start()
-        logger.info("✅ Telegram history client connected")
+        logger.info("Telegram history client connected")
 
     async def get_messages(self, chat: str, limit: int = 100) -> List[Dict]:
         messages = []
@@ -58,3 +58,18 @@ class TelegramHistoryConnector:
             })
 
         return results
+
+# класс TelegramConnector
+
+# Ключевые методы:
+
+# - connect(): устанавливает соединение с Telegram
+# - get_messages(chat, limit): получает последние N сообщений из чата
+# - search(chat, query, limit): ищет сообщения по ключевому слову
+# 
+# Возвращаемые данные:
+# - Каждое сообщение преобразуется в словарь с полями: id, text, type, source, timestamp, link, metadata
+# - Пустые текстовые сообщения (без text) игнорируются
+# - Все сообщения помечаются источником "telegram"
+# 
+# Использует библиотеку Telethon для асинхронного взаимодействия с MTProto API Telegram.

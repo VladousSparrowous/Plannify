@@ -14,10 +14,10 @@ class JiraConnector:
         Инициализация подключения к Jira
         
         Args:
-            url: URL Jira (например, https://your-domain.atlassian.net)
-            email: Email пользователя
-            token: API токен (получить в https://id.atlassian.com/manage-profile/security/api-tokens)
-            project_key: Ключ проекта (например, PROJ)
+            url:
+            email: 
+            token: 
+            project_key: 
         """
         self.url = url
         self.project_key = project_key
@@ -29,9 +29,9 @@ class JiraConnector:
                 max_retries=2,
                 timeout=30
             )
-            logger.info(f"✅ Connected to Jira: {url}")
+            logger.info(f"Connected to Jira: {url}")
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Jira: {e}")
+            logger.error(f"Failed to connect to Jira: {e}")
             raise
     
     def get_my_tasks(self, assignee: str = None, limit: int = 20) -> List[Dict]:
@@ -48,7 +48,7 @@ class JiraConnector:
         try:
             # Формируем JQL запрос
             if assignee:
-                jql = f'project = {self.project_key} AND assignee = {assignee} AND status not in (Closed, Done, Resolved)'
+                jql = f'project = {self.project_key} AND assignee = "{assignee}" AND status not in (Closed, Done, Resolved)'
             else:
                 jql = f'project = {self.project_key} AND assignee = currentUser() AND status not in (Closed, Done, Resolved)'
             
@@ -59,7 +59,7 @@ class JiraConnector:
             for issue in issues:
                 tasks.append(self._format_issue(issue))
             
-            logger.info(f"📋 Found {len(tasks)} active tasks")
+            logger.info(f"Found {len(tasks)} active tasks")
             return tasks
             
         except Exception as e:
@@ -138,13 +138,26 @@ class JiraConnector:
         # Формируем ссылку на задачу
         issue_link = f"{self.url}/browse/{issue.key}"
         
+        # Безопасная обработка дат
+        updated = issue.fields.updated
+        if hasattr(updated, 'isoformat'):
+            updated_str = updated.isoformat()
+        else:
+            updated_str = str(updated) if updated else None
+        
+        created = issue.fields.created
+        if hasattr(created, 'isoformat'):
+            created_str = created.isoformat()
+        else:
+            created_str = str(created) if created else None
+        
         return {
             # Базовые поля (универсальные для всех источников)
             'source': 'jira',
             'source_id': issue.key,
             'title': issue.fields.summary,
             'text': issue.fields.summary,
-            'timestamp': issue.fields.updated.isoformat() if issue.fields.updated else None,
+            'timestamp': updated_str,
             'link': issue_link,
             
             # Специфичные для Jira поля
@@ -154,17 +167,24 @@ class JiraConnector:
                 'priority': priority,
                 'priority_emoji': priority_emoji,
                 'assignee': issue.fields.assignee.displayName if issue.fields.assignee else 'Unassigned',
-                'created': issue.fields.created,
-                'updated': issue.fields.updated,
+                'created': created_str,
+                'updated': updated_str,
             }
         }
     
-    def validate(self) -> bool:
-        """Проверить подключение к Jira"""
-        try:
-            self.jira.myself()
-            logger.info("✅ Jira connection validated")
-            return True
-        except Exception as e:
-            logger.error(f"❌ Jira validation failed: {e}")
-            return False
+
+# класс JiraConnector
+
+# Ключевые методы:
+
+# - get_my_tasks(assignee, limit): получает активные задачи пользователя
+# - get_recent_updates(hours, limit): находит задачи, обновлённые за последние N часов
+# - get_issue_by_key(issue_key): возвращает задачу по ключу (например, PROJ-123)
+# - search_issues(query, max_results): ищет задачи по тексту в заголовке и описании
+# - validate(): проверяет валидность подключения
+
+
+# Возвращаемые данные:
+# - Приводит задачи Jira к унифицированному формату с полями:
+#   source, source_id, title, text, timestamp, link, metadata
+# - metadata содержит специфичные поля: статус, приоритет, исполнитель, даты создания/обновления

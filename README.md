@@ -1,5 +1,7 @@
 <img width="934" height="934" alt="fabula-ai" src="https://github.com/user-attachments/assets/63d9c8c1-d9ec-4851-ab76-0581fd86a93b" />
 
+# Plannify
+
 **Plannify** — это платформа, которая объединяет внутренние источники — электронную почту, чаты, заметки о совещаниях, трекеры — и предоставляет структурированную, 
 полезную для принятия решений информацию вместо избытка необработанных данных. 
 
@@ -12,6 +14,7 @@
 MVP проекта это Telegram-бот на базе Google Gemini AI, который объединяет рабочие коммуникации и задачи в едином интерфейсе. 
 Бот анализирует переписки в Telegram-чатах и задачи в Jira, помогая пользователю не пропускать важное и эффективно планировать рабочий день.
 
+## Запуск
 
 **Для запуска нужно создать файл:**
 
@@ -58,3 +61,18 @@ uv venv
 # macOS / Linux:
 source .venv/bin/activate
 ```
+
+## стэк
+
+| Категория | Технологии | Назначение |
+|------------|------------|------------|
+| Language | Python 3.12+ | Основной язык разработки |
+| LLM | Google Gemini-2.5-flash | Анализ запросов, генерация ответов и планирование |
+| Vector Database | ChromaDB | Хранение эмбеддингов и контекста |
+| Embeddings | Sentence Transformers | Векторизация документов и сообщений |
+| Semantic Search | ChromaDB + Sentence Transformers | Поиск релевантной информации по смыслу |
+| Keyword Search | BM25 (`rank-bm25`) | Классический полнотекстовый поиск |
+| Telegram Client | Telethon | Работа с Telegram API и историей сообщений |
+| Project Management | Jira API | Управление задачами и проектами |
+| Google Services | Google API Client | Интеграция с Google Workspace |
+| Retrieval-Augmented Generation | RAG Pipeline | Гибридный поиск + генерация ответов LLM |
